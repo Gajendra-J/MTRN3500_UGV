@@ -123,9 +123,8 @@ int main()
 			{
 				PMData->Shutdown.Flags.GPS = 1;
 				System::Threading::Thread::Sleep(100);
-				// Restart - Should only startup GPS
+				// Restart - Should only restartup GPS
 				StartProcesses();
-				Console::WriteLine("Bro GPS WAS FKED but i restarted it for you bro");
 			}
 		}
 
