@@ -47,9 +47,7 @@ int main()
 	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
 	SMObject LaserObj(_TEXT("Laser"), sizeof(SM_Laser));
 	SMObject GPSObj(_TEXT("GPS"), sizeof(SM_GPS));
-	SMObject CameraObj(_TEXT("Camera"), sizeof(ProcessManagement));
 	SMObject VehicleControlObj(_TEXT("VehicleControl"), sizeof(SM_VehicleControl));
-	SMObject DisplayObj(_TEXT("Display"), sizeof(ProcessManagement));
 
 	PMObj.SMCreate();
 	PMObj.SMAccess();
@@ -57,20 +55,14 @@ int main()
 	LaserObj.SMAccess();
 	GPSObj.SMCreate();
 	GPSObj.SMAccess();
-	CameraObj.SMCreate();
-	CameraObj.SMAccess();
 	VehicleControlObj.SMCreate();
 	VehicleControlObj.SMAccess();
-	DisplayObj.SMCreate();
-	DisplayObj.SMAccess();
 
 	// Pointers to smstruct
 	ProcessManagement* PMData = (ProcessManagement*)PMObj.pData;
 	SM_Laser* LaserData = (SM_Laser*)LaserObj.pData;
 	SM_GPS* GPSData = (SM_GPS*)GPSObj.pData;
-	ProcessManagement* CameraData = (ProcessManagement*)CameraObj.pData;
 	SM_VehicleControl* VehicleControlData = (SM_VehicleControl*)VehicleControlObj.pData;
-	ProcessManagement* DisplayData = (ProcessManagement*)DisplayObj.pData;
 
 	// Set state of shutdown and heartbeat flags
 	PMData->Shutdown.Status = 0x00;
@@ -84,6 +76,7 @@ int main()
 	// if a non-critical process is dead after wait time - shutdown non-critical process and attempt restart
 	while (!PMData->Shutdown.Flags.ProcessManagement)
 	{
+		Sleep(200);
 		// Set PMs heartbeat as alive
 		PMData->PMHeartbeat.Status = 0xFF;
 		
@@ -101,6 +94,22 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
+
+		if (PMData->Heartbeat.Flags.VehicleControl == 1)
+		{
+			PMData->Heartbeat.Flags.VehicleControl = 0;
+			WaitAndSeeTime.VehicleControl = 0;
+		}
+		else
+		{
+			WaitAndSeeTime.VehicleControl++;
+			if (WaitAndSeeTime.VehicleControl > WAIT_TIME)
+			{
+				PMData->Shutdown.Status = 0xFF;
+			}
+		}
+
+
 		/*
 		// NON-CRITICAL PRCESSES
 		if (PMData->Heartbeat.Flags.GPS == 1)
@@ -126,8 +135,6 @@ int main()
 		{
 			break;
 		}
-
-		Sleep(200);
 	}
 
 	return 0;

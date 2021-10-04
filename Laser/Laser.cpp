@@ -9,7 +9,6 @@
 using namespace System;
 using namespace System::Threading;
 
-
 int main()
 {
     // Setting up shared Memory Objects and providing Create/Access
@@ -48,7 +47,7 @@ int main()
             }
         }
 
-        // Put Laser code below
+        // Put Laser Module Code Below
 
         if (_kbhit())
         {
