@@ -7,33 +7,129 @@
 #include <iostream>
 #include <conio.h>
 
-#include "SMStructs.h"
-#include "SMObject.h"
+#include <SMStructs.h>
+#include <SMObject.h>
 
 using namespace System;
 using namespace System::Net::Sockets;
 using namespace System::Net;
 using namespace System::Text;
 
-#define NUM_UNITS 3
+#define NUM_UNITS 5
+#define WAIT_TIME 10
 
 bool IsProcessRunning(const char* processName);
 void StartProcesses();
 
-//defining start up sequence
+// Defining logical start up sequence for tele operation of UGV
 TCHAR Units[10][20] = //
 {
-	TEXT("GPS.exe"),
-	TEXT("Camera.exe"),
-	TEXT("Display.exe"),
 	TEXT("LASER.exe"),
-	TEXT("VehicleControl.exe")
+	TEXT("Display.exe"),
+	TEXT("VehicleControl.exe"),
+	TEXT("GPS.exe"),
+	TEXT("Camera.exe")
 };
+
+// Manage wait and see timers
+struct waitCount
+{
+	unsigned int LASER = 0;
+	unsigned int GPS = 0;
+	unsigned int CAMERA = 0;
+	unsigned int VehicleControl = 0;
+	unsigned int Display = 0;
+}WaitAndSeeTime;
 
 int main()
 {
+	// Setting up shared Memory Objects and providing Create/Access
+	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
+	SMObject LaserObj(_TEXT("Laser"), sizeof(SM_Laser));
+	SMObject GPSObj(_TEXT("GPS"), sizeof(SM_GPS));
+	SMObject CameraObj(_TEXT("Camera"), sizeof(ProcessManagement));
+	SMObject VehicleControlObj(_TEXT("VehicleControl"), sizeof(SM_VehicleControl));
+	SMObject DisplayObj(_TEXT("Display"), sizeof(ProcessManagement));
+
+	PMObj.SMCreate();
+	PMObj.SMAccess();
+	LaserObj.SMCreate();
+	LaserObj.SMAccess();
+	GPSObj.SMCreate();
+	GPSObj.SMAccess();
+	CameraObj.SMCreate();
+	CameraObj.SMAccess();
+	VehicleControlObj.SMCreate();
+	VehicleControlObj.SMAccess();
+	DisplayObj.SMCreate();
+	DisplayObj.SMAccess();
+
+	// Pointers to smstruct
+	ProcessManagement* PMData = (ProcessManagement*)PMObj.pData;
+	SM_Laser* LaserData = (SM_Laser*)LaserObj.pData;
+	SM_GPS* GPSData = (SM_GPS*)GPSObj.pData;
+	ProcessManagement* CameraData = (ProcessManagement*)CameraObj.pData;
+	SM_VehicleControl* VehicleControlData = (SM_VehicleControl*)VehicleControlObj.pData;
+	ProcessManagement* DisplayData = (ProcessManagement*)DisplayObj.pData;
+
+	// Set state of shutdown and heartbeat flags
+	PMData->Shutdown.Status = 0x00;
+	PMData->Heartbeat.Status = 0x00;
+
 	//start all 5 modules
 	StartProcesses();
+
+	// Check heartbeats, updates PM heartbeat and
+	// if a critical process is dead after wait time - request shutdown all,
+	// if a non-critical process is dead after wait time - shutdown non-critical process and attempt restart
+	while (!PMData->Shutdown.Flags.ProcessManagement)
+	{
+		// Set PMs heartbeat as alive
+		PMData->PMHeartbeat.Status = 0xFF;
+		
+		// CRITICAL PROCESSES
+		if (PMData->Heartbeat.Flags.Laser == 1)
+		{
+			PMData->Heartbeat.Flags.Laser = 0;
+			WaitAndSeeTime.LASER = 0;
+		}
+		else
+		{
+			WaitAndSeeTime.LASER++;
+			if (WaitAndSeeTime.LASER > WAIT_TIME)
+			{
+				PMData->Shutdown.Status = 0xFF;
+			}
+		}
+		/*
+		// NON-CRITICAL PRCESSES
+		if (PMData->Heartbeat.Flags.GPS == 1)
+		{
+			PMData->Heartbeat.Flags.GPS = 0;
+			WaitAndSeeTime.GPS = 0;
+		}
+		else
+		{
+			WaitAndSeeTime.GPS++;
+			if (WaitAndSeeTime.GPS > WAIT_TIME)
+			{
+				PMData->Shutdown.Flags.GPS = 1;
+				System::Threading::Thread::Sleep(100);
+				// Restart - Should only startup GPS
+				//StartProcesses();
+				Console::WriteLine("Bro GPS IS FKED");
+			}
+		}
+		*/
+		// Routine shutdown by "Pressing a key"
+		if (_kbhit())
+		{
+			break;
+		}
+
+		Sleep(200);
+	}
+
 	return 0;
 }
 

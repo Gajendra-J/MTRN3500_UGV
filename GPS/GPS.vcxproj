@@ -115,6 +115,7 @@
     <ClInclude Include="GPS.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\SMObject.cpp" />
     <ClCompile Include="GPS.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

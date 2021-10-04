@@ -33,9 +33,9 @@ struct SM_VehicleControl
 
 struct SM_GPS
 {
-	double northing;
-	double easting;
-	double height;
+	double Northing;
+	double Easting;
+	double Height;
 };
 
 struct UnitFlags
@@ -44,20 +44,21 @@ struct UnitFlags
 					Laser : 1,				//NONCRITICAL
 					VehicleControl : 1,		//NONCRITICAL
 					GPS : 1,				//NONCRITICAL
-					OpenGL : 1,				//NONCRITICAL
 					Camera : 1,				//NONCRITICAL
+					OpenGL : 1,				//NONCRITICAL - Not needed?
 					Garbage : 2;
 };
 
 union ExecFlags
 {
 	UnitFlags Flags;
-	unsigned short Status;
+	unsigned char Status;
 };
 
 struct ProcessManagement
 {
 	ExecFlags Heartbeat;
+	ExecFlags PMHeartbeat;
 	ExecFlags Shutdown;
 	long int LifeCounter;
 };
