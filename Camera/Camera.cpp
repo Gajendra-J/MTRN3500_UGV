@@ -131,7 +131,7 @@ void idle()
 
 	if (PMData->Shutdown.Flags.Camera)
 	{
-		exit(0);
+		exit(1);
 	}
 }
 

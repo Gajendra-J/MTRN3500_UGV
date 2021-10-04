@@ -274,7 +274,7 @@ void idle() {
 				// If no response from PM, request shutdown all
 				PMData->Shutdown.Status = 0xFF;
 				// Exits display since this isnt in a loop like other modules
-				exit(0);
+				exit(1);
 			}
 		}
 	}
