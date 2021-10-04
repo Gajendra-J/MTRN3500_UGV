@@ -110,7 +110,6 @@ int main()
 		}
 
 
-		/*
 		// NON-CRITICAL PRCESSES
 		if (PMData->Heartbeat.Flags.GPS == 1)
 		{
@@ -125,11 +124,11 @@ int main()
 				PMData->Shutdown.Flags.GPS = 1;
 				System::Threading::Thread::Sleep(100);
 				// Restart - Should only startup GPS
-				//StartProcesses();
-				Console::WriteLine("Bro GPS IS FKED");
+				StartProcesses();
+				Console::WriteLine("Bro GPS WAS FKED but i restarted it for you bro");
 			}
 		}
-		*/
+
 		// Routine shutdown by "Pressing a key"
 		if (_kbhit())
 		{
