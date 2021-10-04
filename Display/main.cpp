@@ -248,7 +248,6 @@ void idle() {
 
 	display();
 
-
 	// Setting up shared Memory Objects and providing Create/Access
 	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
 

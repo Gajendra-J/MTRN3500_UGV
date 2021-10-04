@@ -45,7 +45,7 @@ struct UnitFlags
 					VehicleControl : 1,		//NONCRITICAL
 					GPS : 1,				//NONCRITICAL
 					Camera : 1,				//NONCRITICAL
-					OpenGL : 1,				//NONCRITICAL - Not needed?
+					OpenGL : 1,				//NONCRITICAL - Display Module
 					Garbage : 2;
 };
 

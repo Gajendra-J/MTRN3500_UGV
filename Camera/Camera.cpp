@@ -11,6 +11,18 @@
 
 #include <turbojpeg.h>
 
+#using <System.dll>
+#include <conio.h>
+
+#include <SMStructs.h>
+#include <SMObject.h>
+
+using namespace System;
+using namespace System::Threading;
+
+// Global counter
+int counter = 0;
+
 void display();
 void idle();
 
@@ -95,5 +107,31 @@ void idle()
 	}
 
 	display();
+
+	// Setting up shared Memory Objects and providing Create/Access
+	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
+
+	PMObj.SMCreate();
+	PMObj.SMAccess();
+
+	// Pointers to smstruct
+	ProcessManagement* PMData = (ProcessManagement*)PMObj.pData;
+
+	if (!PMData->Shutdown.Flags.Camera)
+	{
+		// Set heartbeat flag
+		PMData->Heartbeat.Flags.Camera = 1;
+		// Check PM heartbeat
+		if (PMData->PMHeartbeat.Flags.Camera == 1)
+		{
+			PMData->PMHeartbeat.Flags.Camera = 0;
+			counter = 0;
+		}
+	}
+
+	if (PMData->Shutdown.Flags.Camera)
+	{
+		exit(0);
+	}
 }
 

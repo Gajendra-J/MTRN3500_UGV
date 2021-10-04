@@ -77,7 +77,7 @@ int main()
 	while (!PMData->Shutdown.Flags.ProcessManagement)
 	{
 		// Faster shutdown if sleep is put here
-		Sleep(200);
+		Sleep(250);
 		// Set PMs heartbeat as alive
 		PMData->PMHeartbeat.Status = 0xFF;
 		
@@ -123,8 +123,22 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
+
+		if (PMData->Heartbeat.Flags.Camera == 1)
+		{
+			PMData->Heartbeat.Flags.Camera = 0;
+			WaitAndSeeTime.CAMERA = 0;
+		}
+		else
+		{
+			WaitAndSeeTime.CAMERA++;
+			if (WaitAndSeeTime.CAMERA > WAIT_TIME)
+			{
+				PMData->Shutdown.Status = 0xFF;
+			}
+		}
 		
-		// NON-CRITICAL PRCESSES
+		// NON-CRITICAL PROCESSES
 		if (PMData->Heartbeat.Flags.GPS == 1)
 		{
 			PMData->Heartbeat.Flags.GPS = 0;
