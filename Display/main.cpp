@@ -38,6 +38,12 @@
 #include "Messages.hpp"
 #include "HUD.hpp"
 
+#using <System.dll>
+#include <conio.h>
+
+#include <SMStructs.h>
+#include <SMObject.h>
+
 void display();
 void reshape(int width, int height);
 void idle();
@@ -53,6 +59,13 @@ void motion(int x, int y);
 
 using namespace std;
 using namespace scos;
+
+using namespace System;
+using namespace System::Threading;
+
+// Global counter
+int counter = 0;
+
 
 // Used to store the previous mouse location so we
 //   can calculate relative mouse movement.
@@ -234,6 +247,38 @@ void idle() {
 	}
 
 	display();
+
+
+	// Setting up shared Memory Objects and providing Create/Access
+	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
+
+	PMObj.SMCreate();
+	PMObj.SMAccess();
+
+	// Pointers to smstruct
+	ProcessManagement* PMData = (ProcessManagement*)PMObj.pData;
+
+	if (!PMData->Shutdown.Flags.OpenGL)
+	{
+		// Set heartbeat flag
+		PMData->Heartbeat.Flags.OpenGL = 1;
+		// Check PM heartbeat
+		if (PMData->PMHeartbeat.Flags.OpenGL == 1)
+		{
+			PMData->PMHeartbeat.Flags.OpenGL = 0;
+			counter = 0;
+		}
+		else
+		{
+			if (++counter > 50)
+			{
+				// If no response from PM, request shutdown all
+				PMData->Shutdown.Status = 0xFF;
+				// Exits display since this isnt in a loop like other modules
+				exit(0);
+			}
+		}
+	}
 
 #ifdef _WIN32 
 	Sleep(sleep_time_between_frames_in_seconds * 1000);

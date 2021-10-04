@@ -76,6 +76,7 @@ int main()
 	// if a non-critical process is dead after wait time - shutdown non-critical process and attempt restart
 	while (!PMData->Shutdown.Flags.ProcessManagement)
 	{
+		// Faster shutdown if sleep is put here
 		Sleep(200);
 		// Set PMs heartbeat as alive
 		PMData->PMHeartbeat.Status = 0xFF;
@@ -108,8 +109,21 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
-
-
+		
+		if (PMData->Heartbeat.Flags.OpenGL == 1)
+		{
+			PMData->Heartbeat.Flags.OpenGL = 0;
+			WaitAndSeeTime.Display = 0;
+		}
+		else
+		{
+			WaitAndSeeTime.Display++;
+			if (WaitAndSeeTime.Display > WAIT_TIME)
+			{
+				PMData->Shutdown.Status = 0xFF;
+			}
+		}
+		
 		// NON-CRITICAL PRCESSES
 		if (PMData->Heartbeat.Flags.GPS == 1)
 		{
