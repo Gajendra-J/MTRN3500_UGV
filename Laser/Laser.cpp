@@ -40,14 +40,13 @@ int main()
         }
         else
         {
-            if (++WaitAndSeeTime > 50)
+            // Needs to be 200 otherwise it fails to start up all
+            if (++WaitAndSeeTime > 200)
             {
                 // If no response from PM, request shutdown all
                 PMData->Shutdown.Status = 0xFF;
             }
         }
-
-        // Put Laser Module Code Below
 
         if (_kbhit())
         {
