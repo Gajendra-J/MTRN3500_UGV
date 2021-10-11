@@ -20,9 +20,6 @@
 using namespace System;
 using namespace System::Threading;
 
-// Global counter
-int counter = 0;
-
 void display();
 void idle();
 
@@ -32,8 +29,17 @@ GLuint tex;
 zmq::context_t context(1);
 zmq::socket_t subscriber(context, ZMQ_SUB);
 
+// Shared Memory
+SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
+ProcessManagement* PMData;
+
 int main(int argc, char** argv)
 {
+	PMObj.SMCreate();
+	while (PMObj.SMAccess());
+	// Pointers to smstruct
+	PMData = (ProcessManagement*)PMObj.pData;
+
 	//Define window size
 	const int WINDOW_WIDTH = 800;
 	const int WINDOW_HEIGHT = 600;
@@ -108,25 +114,10 @@ void idle()
 
 	display();
 
-	// Setting up shared Memory Objects and providing Create/Access
-	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
-
-	PMObj.SMCreate();
-	PMObj.SMAccess();
-
-	// Pointers to smstruct
-	ProcessManagement* PMData = (ProcessManagement*)PMObj.pData;
-
 	if (!PMData->Shutdown.Flags.Camera)
 	{
 		// Set heartbeat flag
 		PMData->Heartbeat.Flags.Camera = 1;
-		// Check PM heartbeat
-		if (PMData->PMHeartbeat.Flags.Camera == 1)
-		{
-			PMData->PMHeartbeat.Flags.Camera = 0;
-			counter = 0;
-		}
 	}
 
 	if (PMData->Shutdown.Flags.Camera)

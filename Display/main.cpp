@@ -77,8 +77,16 @@ Vehicle * vehicle = NULL;
 double speed = 0;
 double steering = 0;
 
+// Shared Memory
+SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
+ProcessManagement* PMData;
+
 //int _tmain(int argc, _TCHAR* argv[]) {
 int main(int argc, char ** argv) {
+
+	PMObj.SMCreate();
+	while(PMObj.SMAccess());
+	PMData = (ProcessManagement*)PMObj.pData;
 
 	const int WINDOW_WIDTH = 800;
 	const int WINDOW_HEIGHT = 600;
@@ -248,35 +256,15 @@ void idle() {
 
 	display();
 
-	// Setting up shared Memory Objects and providing Create/Access
-	SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
-
-	PMObj.SMCreate();
-	PMObj.SMAccess();
-
-	// Pointers to smstruct
-	ProcessManagement* PMData = (ProcessManagement*)PMObj.pData;
-
 	if (!PMData->Shutdown.Flags.OpenGL)
 	{
 		// Set heartbeat flag
 		PMData->Heartbeat.Flags.OpenGL = 1;
-		// Check PM heartbeat
-		if (PMData->PMHeartbeat.Flags.OpenGL == 1)
-		{
-			PMData->PMHeartbeat.Flags.OpenGL = 0;
-			counter = 0;
-		}
-		else
-		{
-			if (++counter > 50)
-			{
-				// If no response from PM, request shutdown all
-				PMData->Shutdown.Status = 0xFF;
-				// Exits display since this isnt in a loop like other modules
-				exit(1);
-			}
-		}
+	}
+
+	if (PMData->Shutdown.Flags.OpenGL)
+	{
+		exit(1);
 	}
 
 #ifdef _WIN32 
