@@ -93,7 +93,7 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
-
+		
 		if (PMData->Heartbeat.Flags.VehicleControl == 1)
 		{
 			PMData->Heartbeat.Flags.VehicleControl = 0;
