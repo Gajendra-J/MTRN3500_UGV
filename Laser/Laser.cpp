@@ -125,10 +125,9 @@ int main()
                 // Store in SM
                 LaserData->x[i] = RangeX[i];
                 LaserData->y[i] = RangeY[i];
+                std::cout << "x: " << LaserData->x[i] << " y: " << LaserData->y[i] << std::endl;
             }
             
-            Console::WriteLine("");
-
         }
         else
         {
