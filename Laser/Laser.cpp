@@ -91,7 +91,6 @@ int main()
             PMData->PMHeartbeat.Flags.Laser = 0;
             WaitAndSeeTime = 0;
 
-
             // Write command asking for data
             Stream->WriteByte(0x02);
             Stream->Write(SendData, 0, SendData->Length);
@@ -103,13 +102,32 @@ int main()
             // Convert incoming data from an array of unsigned char bytes to an ASCII string
             ResponseData = System::Text::Encoding::ASCII->GetString(ReadData);
 
-
             // Print the received string on the screen - RAW DATA
             Console::WriteLine(ResponseData);
 
+            // Split laser data into individual sub strings
+            array<wchar_t>^ Space = {' '};
+            array<String^>^ StringArray = ResponseData->Split(Space);
 
-            // CONVERT RAW DATA TO X Y USING LECTURER CODE MODEL HERE - NOTE JAMES SAID SOMETHING ABOUT CONVERTING TO DEGREES
+            double StartAngle = System::Convert::ToInt32(StringArray[23], 16);
+            double Resolution = System::Convert::ToInt32(StringArray[24], 16) / 10000.0;
+            int NumRanges = System::Convert::ToInt32(StringArray[25], 16);
 
+            array<double> ^Range = gcnew array<double>(NumRanges);
+            array<double> ^RangeX = gcnew array<double>(NumRanges);
+            array<double> ^RangeY = gcnew array<double>(NumRanges);
+
+            for (int i = 0; i < NumRanges; i++) {
+                // Convert raw to X and Y and from rads to degs
+                Range[i] = System::Convert::ToInt32(StringArray[26 + i], 16);
+                RangeX[i] = Range[i] * sin((i * Resolution) * (Math::PI / 180.0));
+                RangeY[i] = -Range[i] * cos((i * Resolution) * (Math::PI / 180.0));
+                // Store in SM
+                LaserData->x[i] = RangeX[i];
+                LaserData->y[i] = RangeY[i];
+            }
+            
+            Console::WriteLine("");
 
         }
         else
