@@ -40,7 +40,7 @@ int main()
         }
         else
         {
-            if (++WaitAndSeeTime > 50)
+            if (++WaitAndSeeTime > 200)
             {
                 // If no response from PM, request shutdown all
                 PMData->Shutdown.Status = 0xFF;
