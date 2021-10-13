@@ -117,11 +117,11 @@ int main()
             array<double> ^RangeX = gcnew array<double>(NumRanges);
             array<double> ^RangeY = gcnew array<double>(NumRanges);
 
-            for (int i = 0; i < NumRanges; i++) {
+            for (int i = 0; i <= NumRanges; i++) {
                 // Convert raw to X and Y and from rads to degs
                 Range[i] = System::Convert::ToInt32(StringArray[26 + i], 16);
-                RangeX[i] = Range[i] * Math::Sin((i * Resolution) * (Math::PI / 180.0));
-                RangeY[i] = -Range[i] * Math::Cos((i * Resolution) * (Math::PI / 180.0));
+                RangeX[i] = Range[i] * Math::Sin(i * Resolution) * (Math::PI / 180.0);
+                RangeY[i] = -Range[i] * Math::Cos(i * Resolution) * (Math::PI / 180.0);
                 // Store in SM
                 LaserData->x[i] = RangeX[i];
                 LaserData->y[i] = RangeY[i];
