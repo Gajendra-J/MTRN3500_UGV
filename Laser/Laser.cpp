@@ -127,7 +127,7 @@ int main()
                 LaserData->y[i] = RangeY[i];
                 std::cout << i << "\tx: " << LaserData->x[i] << "\ty: " << LaserData->y[i] << std::endl;
             }
-            
+            std::cout << "" << std::endl;
         }
         else
         {
