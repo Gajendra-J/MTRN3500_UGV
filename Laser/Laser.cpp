@@ -109,6 +109,7 @@ int main()
             array<wchar_t>^ Space = {' '};
             array<String^>^ StringArray = ResponseData->Split(Space);
 
+            // 16 is the hex format
             double StartAngle = System::Convert::ToInt32(StringArray[23], 16);
             double Resolution = System::Convert::ToInt32(StringArray[24], 16) / 10000.0;
             int NumRanges = System::Convert::ToInt32(StringArray[25], 16);
@@ -120,8 +121,8 @@ int main()
             for (int i = 0; i <= NumRanges; i++) {
                 // Convert raw to X and Y and from rads to degs
                 Range[i] = System::Convert::ToInt32(StringArray[26 + i], 16);
-                RangeX[i] = Range[i] * Math::Sin(i * Resolution) * (Math::PI / 180.0);
-                RangeY[i] = -Range[i] * Math::Cos(i * Resolution) * (Math::PI / 180.0);
+                RangeX[i] = Range[i] * Math::Sin((i * Resolution) * (Math::PI / 180.0));
+                RangeY[i] = -Range[i] * Math::Cos((i * Resolution) * (Math::PI / 180.0));
                 // Store in SM
                 LaserData->x[i] = RangeX[i];
                 LaserData->y[i] = RangeY[i];
