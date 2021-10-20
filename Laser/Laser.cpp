@@ -45,7 +45,7 @@ int main()
     // These command are available on Galil RIO47122 command reference manual
     // available online
     String^ AskScan = gcnew String("sRN LMDscandata");
-    String^ Auth = gcnew String("z5260252\n");
+    String^ Auth = gcnew String("5260252\n");
     // String to store received data for display
     String^ ResponseData;
 

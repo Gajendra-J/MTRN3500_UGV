@@ -11,6 +11,24 @@
 using namespace System;
 using namespace System::Threading;
 
+using namespace System::Net::Sockets;
+using namespace System::Net;
+using namespace System::Text;
+
+using namespace System::IO::Ports;
+
+// 112 bytes
+struct GPSStruct
+{
+    unsigned int Header;
+    unsigned char Discards1[40];
+    double Northing;
+    double Easting;
+    double Height;
+    unsigned char Discards2[40];
+    unsigned int CRC;
+}NovatelGPS;
+
 int main()
 {
     // Setting up shared Memory Objects and providing Create/Access
@@ -29,6 +47,34 @@ int main()
     // Local Setup
     PMData->Shutdown.Flags.GPS = 0;
     int WaitAndSeeTime = 0;
+
+    // GPS
+    // GPS port number must be 24000
+    int PortNumber = 24000;
+    // Pointer to TcpClent type object on managed heap
+    TcpClient^ Client;
+    // arrays of unsigned chars to send and receive data
+    array<unsigned char>^ SendData;
+    array<unsigned char>^ ReadData;
+
+    // Creat TcpClient object and connect to it
+    Client = gcnew TcpClient("192.168.1.200", PortNumber);
+    // Configure connection
+    Client->NoDelay = true;
+    Client->ReceiveTimeout = 500;//ms
+    Client->SendTimeout = 500;//ms
+    Client->ReceiveBufferSize = 1024;
+    Client->SendBufferSize = 1024;
+
+    // unsigned char arrays of 16 bytes each are created on managed heap
+    SendData = gcnew array<unsigned char>(16);
+    // Reading double+ the size of a GPS data pack so 
+    // one full packet of data is almost granteed to be in there
+    ReadData = gcnew array<unsigned char>(256);
+
+    // Get the network streab object associated with clien so we 
+    // can use it to read and write
+    NetworkStream^ Stream = Client->GetStream();
 
     while (!PMData->Shutdown.Flags.GPS)
     {
@@ -49,7 +95,53 @@ int main()
             }
         }
 
-        // Put GPS Module Code Below
+        Thread::Sleep(10);
+        if (Stream->DataAvailable) {
+            Stream->Read(ReadData, 0, ReadData->Length);
+        }
+
+        // Read/Trapping the Header
+        unsigned int Header = 0;
+        int i = 0;
+        int Start; //Start of data
+        unsigned char Data;
+        do
+        {
+            Data = ReadData[i++];
+            Header = ((Header << 8) | Data);
+        }
+        while (Header != 0xaa44121c && i < ReadData->Length);
+        Start = i - 4;
+
+        // Filling data
+        unsigned char* BytePtr = nullptr;
+        BytePtr = (unsigned char*)&NovatelGPS;
+        for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
+        {
+            *(BytePtr++) = ReadData[i];
+        }
+
+        // Compare CRC values
+        unsigned char* bytePtr = (unsigned char*)&NovatelGPS;
+        unsigned int GeneratedCRC = CalculateBlockCRC32(112 - 4, bytePtr);
+        // Print the CRC values
+        Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}\n", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
+        
+        // Store in SM if matching
+        if (GeneratedCRC == NovatelGPS.CRC)
+        {
+            GPSData->Easting = NovatelGPS.Easting;
+            GPSData->Northing = NovatelGPS.Northing;
+            GPSData->Height = NovatelGPS.Height;
+        }
+        else
+        {
+            Console::WriteLine("CRC Values did not match\n");
+        }
+
+        Thread::Sleep(50);
+        // Print northing, easting, height from SM
+        Console::Write("Northing: {0}, \tEasting: {1}, \tHeight: {2}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
 
         if (_kbhit())
         {
@@ -58,6 +150,9 @@ int main()
 
         Thread::Sleep(20);
     }
+
+    Stream->Close();
+    Client->Close();
 
     return 0;
 }
