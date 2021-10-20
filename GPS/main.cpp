@@ -70,7 +70,7 @@ int main()
     SendData = gcnew array<unsigned char>(16);
     // Reading double+ the size of a GPS data pack so 
     // one full packet of data is almost granteed to be in there
-    ReadData = gcnew array<unsigned char>(256);
+    ReadData = gcnew array<unsigned char>(sizeof(NovatelGPS) * 2);
 
     // Get the network streab object associated with clien so we 
     // can use it to read and write
@@ -113,19 +113,20 @@ int main()
         while (Header != 0xaa44121c && i < ReadData->Length);
         Start = i - 4;
 
-        // Filling data
         unsigned char* BytePtr = nullptr;
-        BytePtr = (unsigned char*)&NovatelGPS;
-        for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
-        {
-            *(BytePtr++) = ReadData[i];
+        // Filling data
+        if (Header != 0xaa44121c) {
+            BytePtr = (unsigned char*)&NovatelGPS;
+            for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
+            {
+                *(BytePtr++) = ReadData[i];
+            }
         }
-
         // Compare CRC values
         unsigned char* bytePtr = (unsigned char*)&NovatelGPS;
         unsigned int GeneratedCRC = CalculateBlockCRC32(112 - 4, bytePtr);
         // Print the CRC values
-        Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}\n", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
+        Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
         
         // Store in SM if matching
         if (GeneratedCRC == NovatelGPS.CRC)
@@ -133,15 +134,15 @@ int main()
             GPSData->Easting = NovatelGPS.Easting;
             GPSData->Northing = NovatelGPS.Northing;
             GPSData->Height = NovatelGPS.Height;
+
+            Thread::Sleep(50);
+            // Print northing, easting, height from SM
+            Console::Write("Northing: {0}, \tEasting: {1}, \tHeight: {2}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
         }
         else
         {
-            Console::WriteLine("CRC Values did not match\n");
+            Console::WriteLine("CRC Values did not match");
         }
-
-        Thread::Sleep(50);
-        // Print northing, easting, height from SM
-        Console::Write("Northing: {0}, \tEasting: {1}, \tHeight: {2}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
 
         if (_kbhit())
         {
