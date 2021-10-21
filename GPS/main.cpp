@@ -139,9 +139,9 @@ int main()
                 Thread::Sleep(50);
                 
                 // Print northing, easting, height from SM
-                Console::Write("Northing: {0}\n", GPSData->Northing);
-                Console::Write("Easting: {0}\n", GPSData->Easting);
-                Console::Write("Height: {0}\n\n", GPSData->Height);
+                Console::Write("Northing: {0,10:F6}\n", GPSData->Northing);
+                Console::Write("Easting: {0,10:F6}\n", GPSData->Easting);
+                Console::Write("Height: {0,10:F6}\n\n", GPSData->Height);
             }
             else
             {
