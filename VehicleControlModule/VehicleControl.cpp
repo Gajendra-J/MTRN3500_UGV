@@ -2,6 +2,7 @@
 #using <System.dll>
 #include <Windows.h>
 #include <conio.h>
+#include <math.h>
 
 #include <SMStructs.h>
 #include <SMObject.h>
@@ -28,8 +29,8 @@ int main()
     PMData->Shutdown.Flags.VehicleControl = 0;
     int WaitAndSeeTime = 0;
     unsigned int flag = 0;
-    double Speed = 0.5;
-    double Steer = 30;
+    double Speed;
+    double Steer;
 
     // VEHICLE
     // Vehicle port number must be 25000
@@ -85,8 +86,8 @@ int main()
 
         // Vehicle things
         // random testing values
-        Speed = -Speed;
-        Steer = -Steer;
+        Speed = VehicleControlData->Speed;
+        Steer = VehicleControlData->Steering;
 
         // # <steer> <speed> <flag> # format
         String^ Controls = gcnew String("# " + Steer.ToString("f2") + " " + Speed.ToString("f2") + " " + flag + " #");
