@@ -53,9 +53,9 @@ int main()
     Client = gcnew TcpClient("192.168.1.200", PortNumber);
     // Configure connection
     Client->NoDelay = true;
-    Client->ReceiveTimeout = 500;//ms
+    Client->ReceiveTimeout = 2000;//ms
     Client->SendTimeout = 500;//ms
-    Client->ReceiveBufferSize = 1024;
+    Client->ReceiveBufferSize = 2048;
     Client->SendBufferSize = 1024;
 
     // unsigned char arrays of 16 bytes each are created on managed heap
