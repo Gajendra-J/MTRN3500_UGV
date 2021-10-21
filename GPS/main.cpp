@@ -61,8 +61,8 @@ int main()
     Client = gcnew TcpClient("192.168.1.200", PortNumber);
     // Configure connection
     Client->NoDelay = true;
-    Client->ReceiveTimeout = 500;//ms
-    Client->SendTimeout = 500;//ms
+    Client->ReceiveTimeout = 5000;//ms
+    Client->SendTimeout = 5000;//ms
     Client->ReceiveBufferSize = 1024;
     Client->SendBufferSize = 1024;
 
@@ -70,7 +70,7 @@ int main()
     SendData = gcnew array<unsigned char>(16);
     // Reading double+ the size of a GPS data pack so 
     // one full packet of data is almost granteed to be in there
-    ReadData = gcnew array<unsigned char>(sizeof(NovatelGPS) * 2);
+    ReadData = gcnew array<unsigned char>(sizeof(GPSStruct) * 2);
 
     // Get the network streab object associated with clien so we 
     // can use it to read and write
@@ -115,16 +115,15 @@ int main()
 
         unsigned char* BytePtr = nullptr;
         // Filling data
-        if (Header != 0xaa44121c) {
-            BytePtr = (unsigned char*)&NovatelGPS;
-            for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
-            {
-                *(BytePtr++) = ReadData[i];
-            }
+        BytePtr = (unsigned char*)&NovatelGPS;
+        for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
+        {
+            *(BytePtr++) = ReadData[i];
         }
+        
         // Compare CRC values
         unsigned char* bytePtr = (unsigned char*)&NovatelGPS;
-        unsigned int GeneratedCRC = CalculateBlockCRC32(112 - 4, bytePtr);
+        unsigned int GeneratedCRC = CalculateBlockCRC32(sizeof(NovatelGPS) - 4, bytePtr);
         // Print the CRC values
         Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
         
