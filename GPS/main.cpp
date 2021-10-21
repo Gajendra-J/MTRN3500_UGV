@@ -125,7 +125,7 @@ int main()
             unsigned char* bytePtr = (unsigned char*)&NovatelGPS;
             unsigned int GeneratedCRC = CalculateBlockCRC32(sizeof(NovatelGPS) - 4, bytePtr);
             // Print the CRC values
-            Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
+            Console::WriteLine("Calculated CRC: {0}, Server CRC: {1}, Equal {2}", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
 
             // Store in SM if matching
             if (GeneratedCRC == NovatelGPS.CRC)
@@ -136,7 +136,7 @@ int main()
 
                 Thread::Sleep(50);
                 // Print northing, easting, height from SM
-                Console::Write("Northing: {0}, \tEasting: {1}, \tHeight: {2}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
+                Console::Write("Northing: {0,10:F3}, \tEasting: {1,10:F3}, \tHeight: {2,10:F3}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
             }
             else
             {
