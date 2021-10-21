@@ -79,14 +79,20 @@ double steering = 0;
 
 // Shared Memory
 SMObject PMObj(_TEXT("PMObj"), sizeof(ProcessManagement));
+SMObject VehicleControlObj(_TEXT("VehicleControl"), sizeof(SM_VehicleControl));
 ProcessManagement* PMData;
+SM_VehicleControl* VehicleControlData;
 
 //int _tmain(int argc, _TCHAR* argv[]) {
 int main(int argc, char ** argv) {
 
 	PMObj.SMCreate();
-	while(PMObj.SMAccess());
+	while (PMObj.SMAccess());
+	VehicleControlObj.SMCreate();
+	while (VehicleControlObj.SMAccess());
+
 	PMData = (ProcessManagement*)PMObj.pData;
+	VehicleControlData = (SM_VehicleControl*)VehicleControlObj.pData;
 
 	const int WINDOW_WIDTH = 800;
 	const int WINDOW_HEIGHT = 600;
@@ -239,8 +245,8 @@ void idle() {
 		speed = Vehicle::MAX_BACKWARD_SPEED_MPS;
 	}
 
-
-
+	VehicleControlData->Speed = speed;
+	VehicleControlData->Steering = steering;
 
 	const float sleep_time_between_frames_in_seconds = 0.025;
 
