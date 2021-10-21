@@ -18,6 +18,7 @@ using namespace System::Text;
 using namespace System::IO::Ports;
 
 // 112 bytes
+#pragma pack(1)
 struct GPSStruct
 {
     unsigned int Header;
@@ -95,52 +96,52 @@ int main()
             }
         }
 
-        Thread::Sleep(10);
+        
         if (Stream->DataAvailable) {
+            Thread::Sleep(10);
             Stream->Read(ReadData, 0, ReadData->Length);
-        }
 
-        // Read/Trapping the Header
-        unsigned int Header = 0;
-        int i = 0;
-        int Start; //Start of data
-        unsigned char Data;
-        do
-        {
-            Data = ReadData[i++];
-            Header = ((Header << 8) | Data);
-        }
-        while (Header != 0xaa44121c && i < ReadData->Length);
-        Start = i - 4;
+            // Read/Trapping the Header
+            unsigned int Header = 0;
+            int i = 0;
+            int Start; //Start of data
+            unsigned char Data;
+            do
+            {
+                Data = ReadData[i++];
+                Header = ((Header << 8) | Data);
+            } while (Header != 0xaa44121c && i < ReadData->Length);
+            Start = i - 4;
 
-        unsigned char* BytePtr = nullptr;
-        // Filling data
-        BytePtr = (unsigned char*)&NovatelGPS;
-        for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
-        {
-            *(BytePtr++) = ReadData[i];
-        }
-        
-        // Compare CRC values
-        unsigned char* bytePtr = (unsigned char*)&NovatelGPS;
-        unsigned int GeneratedCRC = CalculateBlockCRC32(sizeof(NovatelGPS) - 4, bytePtr);
-        // Print the CRC values
-        Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
-        
-        // Store in SM if matching
-        if (GeneratedCRC == NovatelGPS.CRC)
-        {
-            GPSData->Easting = NovatelGPS.Easting;
-            GPSData->Northing = NovatelGPS.Northing;
-            GPSData->Height = NovatelGPS.Height;
+            unsigned char* BytePtr = nullptr;
+            // Filling data
+            BytePtr = (unsigned char*)&NovatelGPS;
+            for (int i = Start; i < Start + sizeof(NovatelGPS); i++)
+            {
+                *(BytePtr++) = ReadData[i];
+            }
 
-            Thread::Sleep(50);
-            // Print northing, easting, height from SM
-            Console::Write("Northing: {0}, \tEasting: {1}, \tHeight: {2}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
-        }
-        else
-        {
-            Console::WriteLine("CRC Values did not match");
+            // Compare CRC values
+            unsigned char* bytePtr = (unsigned char*)&NovatelGPS;
+            unsigned int GeneratedCRC = CalculateBlockCRC32(sizeof(NovatelGPS) - 4, bytePtr);
+            // Print the CRC values
+            Console::WriteLine("CalcCRC: {0}, ServerCRC: {1}, Equal {2}", GeneratedCRC, NovatelGPS.CRC, GeneratedCRC == NovatelGPS.CRC);
+
+            // Store in SM if matching
+            if (GeneratedCRC == NovatelGPS.CRC)
+            {
+                GPSData->Easting = NovatelGPS.Easting;
+                GPSData->Northing = NovatelGPS.Northing;
+                GPSData->Height = NovatelGPS.Height;
+
+                Thread::Sleep(50);
+                // Print northing, easting, height from SM
+                Console::Write("Northing: {0}, \tEasting: {1}, \tHeight: {2}\n\n", GPSData->Northing, GPSData->Easting, GPSData->Height);
+            }
+            else
+            {
+                Console::WriteLine("CRC Values did not match");
+            }
         }
 
         if (_kbhit())
