@@ -34,6 +34,13 @@ int main()
     int WaitAndSeeTime = 0;
 
     // LASER
+    array<String^>^ StringArray = nullptr;
+    double StartAngle;
+    double Resolution;
+    int NumRanges;
+    array<double>^ Range;
+    array<double>^ RangeX;
+    array<double>^ RangeY;
     // LMS151 port number must be 23000
     int PortNumber = 23000;    
     // Pointer to TcpClent type object on managed heap
@@ -53,8 +60,8 @@ int main()
     Client = gcnew TcpClient("192.168.1.200", PortNumber);
     // Configure connection
     Client->NoDelay = true;
-    Client->ReceiveTimeout = 2000;//ms
-    Client->SendTimeout = 500;//ms
+    Client->ReceiveTimeout = 1500;//ms
+    Client->SendTimeout = 1500;//ms
     Client->ReceiveBufferSize = 2048;
     Client->SendBufferSize = 1024;
 
@@ -106,17 +113,16 @@ int main()
             Console::WriteLine(ResponseData);
 
             // Split laser data into individual sub strings
-            array<wchar_t>^ Space = {' '};
-            array<String^>^ StringArray = ResponseData->Split(Space);
+            StringArray = ResponseData->Split(' ');
 
             // 16 is the hex format
-            double StartAngle = System::Convert::ToInt32(StringArray[23], 16);
-            double Resolution = System::Convert::ToInt32(StringArray[24], 16) / 10000.0;
-            int NumRanges = System::Convert::ToInt32(StringArray[25], 16);
+            StartAngle = System::Convert::ToInt32(StringArray[23], 16);
+            Resolution = System::Convert::ToInt32(StringArray[24], 16) / 10000.0;
+            NumRanges = System::Convert::ToInt32(StringArray[25], 16);
 
-            array<double> ^Range = gcnew array<double>(NumRanges);
-            array<double> ^RangeX = gcnew array<double>(NumRanges);
-            array<double> ^RangeY = gcnew array<double>(NumRanges);
+            Range = gcnew array<double>(NumRanges);
+            RangeX = gcnew array<double>(NumRanges);
+            RangeY = gcnew array<double>(NumRanges);
 
             for (int i = 0; i < NumRanges; i++) {
                 // Convert raw to X and Y and from rads to degs
