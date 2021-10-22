@@ -245,8 +245,8 @@ void idle() {
 		speed = Vehicle::MAX_BACKWARD_SPEED_MPS;
 	}
 
-	VehicleControlData->Speed = speed;
-	VehicleControlData->Steering = steering;
+	VehicleControlData->Speed = vehicle->getSpeed();
+	VehicleControlData->Steering = vehicle->getSteering();
 
 	const float sleep_time_between_frames_in_seconds = 0.025;
 
