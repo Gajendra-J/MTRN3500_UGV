@@ -27,10 +27,17 @@
 
 #include <map>
 
+#include <SMStructs.h>
+#include <SMObject.h>
 
 extern Vehicle * vehicle;
 
 using namespace scos;
+using namespace System;
+
+// Shared Memory
+SMObject GPSObj(_TEXT("GPS"), sizeof(SM_GPS));
+SM_GPS* GPSData;
 
 
 void HUD::RenderString(const char * str, int x, int y, void * font) 
@@ -145,11 +152,26 @@ void HUD::Draw()
 	if(winWidthOff < 0)
 		winWidthOff = 0;
 
+	// Shared Memory
+	GPSObj.SMCreate();
+	while (GPSObj.SMAccess());
+	GPSData = (SM_GPS*)GPSObj.pData;
+	double Northing = GPSData->Northing;
+	double Easting = GPSData->Easting;
+	double Height = GPSData->Height;
+	// This shit is what converts it to a string
+	char buff[80];
+	sprintf(buff, "Northing: %.6f, Easting: %.6f, Height: %.6f", Northing, Easting, Height);
+
 	if(vehicle) {
 		glColor3f(1, 0, 0);
 		DrawGauge(200+winWidthOff, 280, 210, -1, 1, vehicle->getSpeed(), "Speed");
 		glColor3f(1, 1, 0);
 		DrawGauge(600+winWidthOff, 280, 210, -40, 40, vehicle->getSteering(), "Steer");
+
+		// Draw GPS Northing, Easting and Height
+		glColor3f(1, 1, 1); // White, rgb
+		RenderString(buff, 10 + winWidthOff, 20 + winWidthOff, GLUT_BITMAP_HELVETICA_18);
 	}
 
 	Camera::get()->switchTo3DDrawing();
