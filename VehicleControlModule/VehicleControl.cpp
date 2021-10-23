@@ -88,6 +88,8 @@ int main()
         // random testing values
         Speed = VehicleControlData->Speed;
         Steer = VehicleControlData->Steering;
+        // Needs to be inverse based of weeders response in camera
+        Steer = -Steer;
 
         // # <steer> <speed> <flag> # format
         String^ Controls = gcnew String("# " + Steer.ToString("f2") + " " + Speed.ToString("f2") + " " + flag + " #");
