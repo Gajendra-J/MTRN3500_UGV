@@ -24,11 +24,11 @@ void StartProcesses();
 // Defining logical start up sequence for tele operation of UGV
 TCHAR Units[10][20] = //
 {
-	TEXT("LASER.exe"),
-	TEXT("Display.exe"),
 	TEXT("VehicleControl.exe"),
 	TEXT("GPS.exe"),
-	TEXT("Camera.exe")
+	TEXT("LASER.exe"),
+	TEXT("Camera.exe"),
+	TEXT("Display.exe")
 };
 
 // Manage wait and see timers
@@ -80,6 +80,7 @@ int main()
 		PMData->PMHeartbeat.Status = 0xFF;
 		
 		// CRITICAL PROCESSES
+		// Laser
 		if (PMData->Heartbeat.Flags.Laser == 1)
 		{
 			PMData->Heartbeat.Flags.Laser = 0;
@@ -93,7 +94,7 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
-		
+		// Vehicle Control
 		if (PMData->Heartbeat.Flags.VehicleControl == 1)
 		{
 			PMData->Heartbeat.Flags.VehicleControl = 0;
@@ -107,7 +108,7 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
-		
+		// OpenGl/Display
 		if (PMData->Heartbeat.Flags.OpenGL == 1)
 		{
 			PMData->Heartbeat.Flags.OpenGL = 0;
@@ -121,7 +122,7 @@ int main()
 				PMData->Shutdown.Status = 0xFF;
 			}
 		}
-		
+		// Camera
 		if (PMData->Heartbeat.Flags.Camera == 1)
 		{
 			PMData->Heartbeat.Flags.Camera = 0;
@@ -137,6 +138,7 @@ int main()
 		}
 		
 		// NON-CRITICAL PROCESSES
+		// GPS
 		if (PMData->Heartbeat.Flags.GPS == 1)
 		{
 			PMData->Heartbeat.Flags.GPS = 0;
