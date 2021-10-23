@@ -20,9 +20,21 @@
 	#include <unistd.h>
 #endif
 
+#include <SMStructs.h>
+#include <SMObject.h>
+
+// Shared Memory
+SMObject LaserObj(_TEXT("Laser"), sizeof(SM_Laser));
+SM_Laser* LaserData;
+
 
 void drawUGV(double steerAngle)
 {
+	// Shared Memory
+	LaserObj.SMCreate();
+	while (LaserObj.SMAccess());
+	LaserData = (SM_Laser*)LaserObj.pData;
+
 	const float red = .8, green = .1, blue = .2;
 	const float width = .4;
 	const float wheel_height = .4;
@@ -129,6 +141,34 @@ void drawUGV(double steerAngle)
 			glTranslatef(0, 0, (width+wheel_width) * 2);
 			gluCylinder(quad, wheel_height*.5, wheel_height*.5, wheel_width, 12, 1);
 		glPopMatrix();
+	glPopMatrix();
+
+	// draw laser data
+	// get laser data and setup locally
+	int NumRanges = LaserData->NumRanges;
+	array<double>^ RangeX = gcnew array<double>(NumRanges);
+	array<double>^ RangeY = gcnew array<double>(NumRanges);
+	for (int i = 0; i < NumRanges; i++) {
+		RangeX[i] = LaserData->x[i];
+		RangeY[i] = LaserData->y[i];
+	}
+
+	glPushMatrix();
+		// Rangefinders scanning plane is 30cm above the ground level
+		// extra 50cm in x direction so the data prints from the front of the vehicle
+		glTranslatef(0.5, 0.3, 0);
+		glColor3f(1, 1, 1); // plot in white like demo
+		glLineWidth(2.5);
+		for (int i = 0; i < NumRanges; i++) {
+			glBegin(GL_LINES);
+				// Draw lines from bottom to top
+					// need to flip y range values to match demo 
+					// and also put them in z range to print flat
+					// divided laser values by 1000 to bring closer to vehicle - something to do with mm and m conversion
+				glVertex3f(RangeX[i] / 1000, 0, -RangeY[i] / 1000);
+				glVertex3f(RangeX[i] / 1000, 1, -RangeY[i] / 1000);
+			glEnd();
+		}
 	glPopMatrix();
 }
 

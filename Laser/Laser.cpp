@@ -132,6 +132,7 @@ int main()
                 // Store in SM
                 LaserData->x[i] = RangeX[i];
                 LaserData->y[i] = RangeY[i];
+                LaserData->NumRanges = NumRanges;
                 std::cout << i << "\tx: " << LaserData->x[i] << "\ty: " << LaserData->y[i] << std::endl;
             }
             std::cout << "" << std::endl;
