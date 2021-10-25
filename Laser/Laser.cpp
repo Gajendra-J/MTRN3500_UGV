@@ -110,15 +110,23 @@ int main()
             ResponseData = System::Text::Encoding::ASCII->GetString(ReadData);
 
             // Print the received string on the screen - RAW DATA
-            Console::WriteLine(ResponseData);
+            //Console::WriteLine(ResponseData);
 
             // Split laser data into individual sub strings
             StringArray = ResponseData->Split(' ');
+
+            // Check if the data packet recieved is a complete packet
+            if (StringArray[1] != "LMDscandata" && System::Convert::ToInt32(StringArray[25], 16) != 361)
+            {
+                continue;
+            }
 
             // 16 is the hex format
             StartAngle = System::Convert::ToInt32(StringArray[23], 16);
             Resolution = System::Convert::ToInt32(StringArray[24], 16) / 10000.0;
             NumRanges = System::Convert::ToInt32(StringArray[25], 16);
+
+            LaserData->NumRanges = NumRanges;
 
             Range = gcnew array<double>(NumRanges);
             RangeX = gcnew array<double>(NumRanges);
@@ -132,8 +140,7 @@ int main()
                 // Store in SM
                 LaserData->x[i] = RangeX[i];
                 LaserData->y[i] = RangeY[i];
-                LaserData->NumRanges = NumRanges;
-                std::cout << i << "\tx: " << LaserData->x[i] << "\ty: " << LaserData->y[i] << std::endl;
+                Console::WriteLine("{0} \tx: {1,10:F6} \ty: {2,10:F6}", i + 1, LaserData->x[i], LaserData->y[i]);
             }
             std::cout << "" << std::endl;
         }
@@ -152,7 +159,7 @@ int main()
             break;
         }
 
-        Thread::Sleep(20);
+        Thread::Sleep(50);
     }
 
     Stream->Close();
