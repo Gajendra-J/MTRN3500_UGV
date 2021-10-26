@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <conio.h>
 
-#include "GPS.h"
+#include "GPSClasses.h"
 
 #include <SMStructs.h>
 #include <SMObject.h>

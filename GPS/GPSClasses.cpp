@@ -1,5 +1,5 @@
 
-#include "GPS.h"
+#include "GPSClasses.h"
 
 // 112 bytes
 #pragma pack(1)
