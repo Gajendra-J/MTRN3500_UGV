@@ -21,6 +21,9 @@ public:
 	~GPS();
 
 protected:
-	// YOUR CODE HERE (ADDITIONAL MEMBER VARIABLES THAT YOU MAY WANT TO ADD)
+	ProcessManagement* PMData;
+	SM_GPS* GPSData;
 
+	array<unsigned char>^ SendData; // arrays of unsigned chars to send data
+	int WaitAndSeeTime = 0; // timer for heartbeats
 };
