@@ -36,14 +36,14 @@ int Laser::setupSharedMemory()
 	ProcessManagementData->SMAccess();
 	PMData = (ProcessManagement*)ProcessManagementData->pData;
 
-	// VehicleControl
-	SensorData = new SMObject(_TEXT("VehicleControl"), sizeof(SM_VehicleControl));
+	// Laser
+	SensorData = new SMObject(_TEXT("Laser"), sizeof(SM_Laser));
 	SensorData->SMCreate();
 	SensorData->SMAccess();
-	VehicleControlData = (SM_VehicleControl*)SensorData->pData;
+	LaserData = (SM_Laser*)SensorData->pData;
 
 	// Local shutdown setup
-	PMData->Shutdown.Flags.VehicleControl = 0;
+	PMData->Shutdown.Flags.Laser = 0;
 
 	return 1;
 }

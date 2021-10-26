@@ -17,7 +17,7 @@ public:
 
 protected:
 	ProcessManagement* PMData;
-	SM_VehicleControl* VehicleControlData;
+	SM_Laser* LaserData;
 
 	array<unsigned char>^ SendData; // arrays of unsigned chars to send data
 	int WaitAndSeeTime = 0; // timer for heartbeats
