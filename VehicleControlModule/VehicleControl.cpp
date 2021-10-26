@@ -6,10 +6,46 @@
 
 #include <SMStructs.h>
 #include <SMObject.h>
+#include "VehicleControlClasses.h"
 
 using namespace System;
 using namespace System::Threading;
 
+// MAIN AFTER CLASS IMPLEMENTATIION
+int main()
+{
+    VehicleControl VC;
+
+    // Setup shared memory
+    VC.setupSharedMemory();
+
+    // Connect to client with 25000 port for VC
+    int PortNumber = 25000;
+    VC.connect("192.168.1.200", PortNumber);
+
+    // While not shutdown
+    while (!VC.getShutdownFlag())
+    {
+        // Set and check heatbeats of VC and PM
+        bool heartbeat = true;
+        VC.setHeartbeat(heartbeat);
+        // Set controls
+        VC.getData();
+
+        if (_kbhit())
+        {
+            break;
+        }
+
+        Thread::Sleep(20);
+    }
+
+    return 0;
+}
+
+/*
+
+// MAIN BEFORE CLASS IMPLEMENTATIION
 int main()
 {
     // Setting up shared Memory Objects and providing Create/Access
@@ -85,7 +121,7 @@ int main()
         }
 
         // Vehicle things
-        // random testing values
+        // Get speed and steering values from SM (Display)
         Speed = VehicleControlData->Speed;
         Steer = VehicleControlData->Steering;
         // Needs to be inverse based of weeders response in camera
@@ -117,3 +153,4 @@ int main()
 
     return 0;
 }
+*/

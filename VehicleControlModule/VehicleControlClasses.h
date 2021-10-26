@@ -16,6 +16,12 @@ public:
 	~VehicleControl();
 
 protected:
-	// YOUR CODE HERE (ADDITIONAL MEMBER VARIABLES THAT YOU MAY WANT TO ADD)
+	ProcessManagement* PMData;
+	SM_VehicleControl* VehicleControlData;
 
+	array<unsigned char>^ SendData; // arrays of unsigned chars to send data
+	int WaitAndSeeTime = 0; // timer for heartbeats
+	unsigned int flag = 0; // field required for UGV control
+	double Speed; // to store speed controls
+	double Steer; // to store steering controls
 };
