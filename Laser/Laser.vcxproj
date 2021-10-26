@@ -135,7 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\SMObject.cpp" />
-    <ClCompile Include="Laser.cpp" />
+    <ClCompile Include="LaserMain.cpp" />
     <ClCompile Include="LaserClasses.cpp" />
   </ItemGroup>
   <ItemGroup>
