@@ -15,6 +15,48 @@ using namespace System::Net::Sockets;
 using namespace System::Net;
 using namespace System::Text;
 
+// MAIN AFTER CLASS IMPLEMENTATIION
+int main()
+{
+    Laser Laser;
+
+    // Setup shared memory
+    Laser.setupSharedMemory();
+
+    // Connect to client with 23000 port for LMS151
+    int PortNumber = 23000;
+    Laser.connect("192.168.1.200", PortNumber);
+
+    // While not shutdown
+    while (!Laser.getShutdownFlag())
+    {
+        // Set and check heatbeats of VC and PM
+        bool heartbeat = true;
+        Laser.setHeartbeat(heartbeat);
+
+        // Ask, get and convert data to ASCII string
+        Laser.getData();
+        // Check data packet recieved is a complete packet
+        if (Laser.checkData())
+        {
+            // Process data and share to memory
+            Laser.sendDataToSharedMemory();
+        }
+
+        if (_kbhit())
+        {
+            break;
+        }
+
+        Thread::Sleep(50);
+    }
+
+    return 0;
+}
+
+/*
+
+// MAIN BEFORE CLASS IMPLEMENTATIION
 int main()
 {
     // SHARED MEMORY
@@ -44,7 +86,7 @@ int main()
     array<double>^ RangeX;
     array<double>^ RangeY;
     // LMS151 port number must be 23000
-    int PortNumber = 23000;    
+    int PortNumber = 23000;
     // Pointer to TcpClent type object on managed heap
     TcpClient^ Client;
     // arrays of unsigned chars to send and receive data
@@ -71,7 +113,7 @@ int main()
     SendData = gcnew array<unsigned char>(16);
     ReadData = gcnew array<unsigned char>(2500);
 
-    // Get the network streab object associated with clien so we 
+    // Get the network streab object associated with clien so we
     // can use it to read and write
     NetworkStream^ Stream = Client->GetStream();
 
@@ -167,5 +209,6 @@ int main()
     Stream->Close();
     Client->Close();
 
-	return 0;
+    return 0;
 }
+*/

@@ -21,7 +21,11 @@ protected:
 
 	array<unsigned char>^ SendData; // arrays of unsigned chars to send data
 	int WaitAndSeeTime = 0; // timer for heartbeats
-	unsigned int flag = 0; // field required for UGV control
-	double Speed; // to store speed controls
-	double Steer; // to store steering controls
+	array<String^>^ StringArray = nullptr;
+	double StartAngle;
+	double Resolution;
+	int NumRanges; 
+	array<double>^ Range;
+	array<double>^ RangeX;
+	array<double>^ RangeY;
 };
