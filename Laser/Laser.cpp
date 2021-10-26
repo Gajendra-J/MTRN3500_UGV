@@ -5,6 +5,8 @@
 
 #include <SMStructs.h>
 #include <SMObject.h>
+#include "LaserClasses.h"
+
 
 using namespace System;
 using namespace System::Threading;
