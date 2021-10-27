@@ -245,6 +245,7 @@ void idle() {
 		speed = Vehicle::MAX_BACKWARD_SPEED_MPS;
 	}
 
+	// Send VC processed speed and steering controls
 	VehicleControlData->Speed = vehicle->getSpeed();
 	VehicleControlData->Steering = vehicle->getSteering();
 

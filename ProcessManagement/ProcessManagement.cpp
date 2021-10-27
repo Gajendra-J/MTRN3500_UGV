@@ -68,7 +68,7 @@ int main()
 	PMData->Shutdown.Status = 0x00;
 	PMData->Heartbeat.Status = 0x00;
 
-	//start all 5 modules
+	// Start all 5 modules
 	StartProcesses();
 
 	// Check heartbeats, updates PM heartbeat and

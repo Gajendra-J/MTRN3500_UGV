@@ -142,7 +142,7 @@ int Laser::setHeartbeat(bool heartbeat)
 	}
 	else
 	{
-		if (++WaitAndSeeTime > 200)
+		if (++WaitAndSeeTime > 25)
 		{
 			// If no response from PM, request shutdown all
 			PMData->Shutdown.Status = 0xFF;
